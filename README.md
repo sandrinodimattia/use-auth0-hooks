@@ -1,19 +1,19 @@
-# react-use-auth0
+# use-auth0
 
-An easy way to sign in with Auth0 in your React application (client-side only).
+An easy way to sign in with Auth0 in your React application (client-side) using React Hooks.
 
 ## Installation
 
 Using [npm](https://npmjs.org):
 
 ```sh
-npm install react-use-auth0
+npm install use-auth0
 ```
 
 Using [yarn](https://yarnpkg.com):
 
 ```sh
-yarn add react-use-auth0
+yarn add use-auth0
 ```
 
 ## Getting Started
@@ -26,7 +26,7 @@ Wrap your application with the `Auth0Provider` (under `/pages/_app.js`):
 import App from 'next/app';
 import Router from 'next/router';
 
-import { Auth0Provider } from 'react-use-auth0';
+import { Auth0Provider } from 'use-auth0';
 
 /**
  * Create a page which wraps the Auth0 provider.
@@ -53,7 +53,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 
-import { useAuth0 } from 'react-use-auth0';
+import { useAuth0 } from 'use-auth0';
 
 export default function NavBar() {
   const { pathname, query } = useRouter();
@@ -107,7 +107,7 @@ And finally you can create pages which require authentication:
 ```js
 import React from 'react';
 
-import { useAuth0, requireLogin } from 'react-use-auth0';
+import { useAuth0, requireLogin } from 'use-auth0';
 
 function Profile() {
   const { user } = useAuth0();
