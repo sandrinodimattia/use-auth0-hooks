@@ -1,5 +1,5 @@
 {
-  "name": "use-auth0",
+  "name": "use-auth0-hooks",
   "version": "0.1.0",
   "description": "An easy way to sign in with Auth0 in your React SPA",
   "main": "src/index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sandrinodimattia/react-use-auth0.git"
+    "url": "git+https://github.com/sandrinodimattia/use-auth0-hooks.git"
   },
   "author": "Sandrino Di Mattia",
   "license": "MIT",
