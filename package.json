@@ -2,9 +2,24 @@
   "name": "use-auth0-hooks",
   "version": "0.1.0",
   "description": "An easy way to sign in with Auth0 in your React SPA",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [
+    "auth0",
+    "react",
+    "authentication"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf dist",
+    "pretty": "prettier --write \"src/**/*.ts\" \"src/*.ts\"",
+    "lint": "eslint --fix --ext .tsx ./src",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "jest --passWithNoTests --coverage",
+    "test:watch": "jest --coverage --watch",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -13,14 +28,50 @@
   "author": "Sandrino Di Mattia",
   "license": "MIT",
   "dependencies": {
-    "@auth0/auth0-spa-js": "^1.2.4"
+    "@auth0/auth0-spa-js": "^1.2.4",
+    "query-string": "^6.8.3"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.8",
+    "@types/react": "^16.9.4",
+    "@types/react-dom": "^16.9.0",
+    "@typescript-eslint/eslint-plugin": "^2.1.0",
+    "@typescript-eslint/parser": "^2.1.0",
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.2.0",
+    "eslint-import-resolver-typescript": "^1.1.1",
+    "eslint-plugin-import": "^2.18.2",
+    "jest": "^24.9.0",
+    "prettier": "^1.18.2",
     "react": "^16.10.1",
-    "react-dom": "^16.10.1"
+    "react-dom": "^16.10.1",
+    "ts-jest": "^24.1.0",
+    "tslib": "^1.10.0",
+    "typescript": "^3.6.3"
   },
   "peerDependencies": {
     "react": "^16.10.1",
     "react-dom": "^16.10.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "rootDir": "./",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/tests/",
+      "./jest.config.js"
+    ],
+    "coverageReporters": [
+      "lcov",
+      "text",
+      "text-summary"
+    ],
+    "preset": "ts-jest"
   }
 }
