@@ -1,0 +1,26 @@
+{
+  "name": "react-use-auth0",
+  "version": "0.1.0",
+  "description": "An easy way to sign in with Auth0 in your React SPA",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sandrinodimattia/react-use-auth0.git"
+  },
+  "author": "Sandrino Di Mattia",
+  "license": "MIT",
+  "dependencies": {
+    "@auth0/auth0-spa-js": "^1.2.4"
+  },
+  "devDependencies": {
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1"
+  },
+  "peerDependencies": {
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1"
+  }
+}
