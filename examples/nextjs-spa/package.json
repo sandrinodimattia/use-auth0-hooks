@@ -1,0 +1,24 @@
+{
+  "name": "nextjs-auth0-spa-example",
+  "version": "1.0.0",
+  "description": "A sample application showing how your users can sign in to your Next.js application using the Auth0 SPA SDK",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [
+    "nextjs",
+    "auth0",
+    "react"
+  ],
+  "author": "Sandrino Di Mattia",
+  "license": "MIT",
+  "dependencies": {
+    "next": "^9.0.7",
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1",
+    "use-auth0-hooks": "^0.2.0"
+  }
+}
