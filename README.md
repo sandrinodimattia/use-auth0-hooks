@@ -107,11 +107,10 @@ And finally you can create pages which require authentication:
 ```js
 import React from 'react';
 
-import { useAuth0, WithLoginRequired } from 'use-auth0-hooks';
+import { withAuth, withLoginRequired } from 'use-auth0-hooks';
 
-function Profile() {
-  const { user } = useAuth0();
-
+function Profile({ auth }) {
+  const { user } = auth;
   return (
     <div>
       <h1>Profile</h1>
@@ -121,7 +120,9 @@ function Profile() {
   );
 }
 
-export default WithLoginRequired(Profile);
+export default withLoginRequired(
+  withAuth(Profile)
+);
 ```
 
 ## Advanced Use Cases
@@ -230,7 +231,7 @@ If for some reason the login fails (eg: an Auth0 Rule returns an error), you'll 
  * When signing in fails for some reason, we want to show it here.
  * @param {Error} err 
  */
-const onError = (err) => {
+const onLoginError = (err) => {
   Router.push({
     pathname: '/oops',
     query: {
@@ -248,7 +249,33 @@ export default class Root extends App {
     return (
       <Auth0Provider
         ...
-        onError={onError}>
+        onLoginError={onLoginError}>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+      </Auth0Provider>
+    );
+  }
+}
+```
+
+You can also be notified when retrieving an new access token is not possible:
+
+```js
+const onAccessTokenError = (err, options) => {
+  console.error('Failed to retrieve access token: ', err);
+};
+
+/**
+ * Create a page which wraps the Auth0 provider.
+ */
+export default class Root extends App {
+  render () {
+    const { Component, pageProps } = this.props;
+    return (
+      <Auth0Provider
+        ...
+        onAccessTokenError={onAccessTokenError}>
           <Layout>
             <Component {...pageProps} />
           </Layout>
