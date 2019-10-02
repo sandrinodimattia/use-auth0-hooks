@@ -23,8 +23,8 @@ export default function NavBar() {
             </Link>
           </li>
           <li>
-            <Link href='/books'>
-              <a>Books</a>
+            <Link href='/shows'>
+              <a>TV Shows</a>
             </Link>
           </li>
           {!isLoading && (
