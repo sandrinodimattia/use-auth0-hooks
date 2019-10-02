@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 
-import { useAuth0 } from 'use-auth0-hooks';
+import { useAuth0 } from '../dist';
 
 export default function NavBar() {
   const { pathname, query } = useRouter();
@@ -20,6 +20,11 @@ export default function NavBar() {
           <li>
             <Link href='/about'>
               <a>About</a>
+            </Link>
+          </li>
+          <li>
+            <Link href='/books'>
+              <a>Books</a>
             </Link>
           </li>
           {!isLoading && (

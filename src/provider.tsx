@@ -1,10 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import createClient from '@auth0/auth0-spa-js';
+import Auth0Client from '@auth0/auth0-spa-js/dist/typings/Auth0Client';
 
-import getState from './get-state';
 import Auth0Context from './context';
+import { LoginOptions } from './models/login-options';
+import { Auth0ProviderOptions } from './models/provider-options';
+import { AccessTokenRequestOptions } from './models/access-token-options';
 
-const redirectAfterLogin = (appState: any, onRedirectCallback: (appyState: any) => void) => {
+/**
+ * Logic which will take care of cleaning up the state and optionally calling the redirect handler.
+ */
+const redirectAfterLogin = (appState: any, onRedirectCallback?: (appState: any) => void): void => {
   if (!window) {
     return;
   }
@@ -22,71 +28,76 @@ const redirectAfterLogin = (appState: any, onRedirectCallback: (appyState: any) 
   }
 };
 
-const initAuth0 = async (state: any, options: any, onRedirectCallback: any, onError: any): Promise<void> => {
-  try {
-    const client = await createClient(options);
-    state.setClient(client);
 
-    // If the user was redirect from Auth0, we need to handle the exchange or throw an error.
-    if (window.location.search.includes('state=') || (window.location.search.includes('error=') || window.location.search.includes('code='))) {
-      const { appState } = await client.handleRedirectCallback();
-      redirectAfterLogin(appState, onRedirectCallback);
-    }
-
-    const isAuthenticated = await client.isAuthenticated();
-    state.setAuthenticated(isAuthenticated);
-
-    if (isAuthenticated) {
-      const user = await client.getUser();
-      state.setUser(user);
-    }
-
-    state.setLoading(false);
-  } catch (err) {
-    state.setUser(null);
-    state.setLoading(false);
-    state.setAuthenticated(false);
-
-    // Call a custom error handler if available.
-    if (onError) {
-      onError(err);
-    } else {
-      console.error(err);
-    }
-  }
-};
-
-export interface Auth0ProviderOptions {
-  children: React.ReactChildren;
-
-  clientId: string;
-
-  redirectUri: string;
-
-  onRedirecting?: () => React.Component;
-
-  onRedirectCallback?: (appState: any) => void;
-
-  onError?: (error: Error) => void;
-
-  /**
-   * Any other setting you want to send to the Auth0 SPA SDK.
-   */
-  [key: string]: any;
+export interface ProviderState {
+  error: Error | null;
+  user: object | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
 export default function Auth0Provider({
-  children, clientId, redirectUri, onRedirecting, onRedirectCallback, onError, ...props
-}: Auth0ProviderOptions) {
-  const state = getState();
+  children,
+  clientId,
+  redirectUri,
+  onRedirecting,
+  onRedirectCallback,
+  onLoginError,
+  onAccessTokenError,
+  ...props
+}: Auth0ProviderOptions): React.ReactNode {
   const options = {
     client_id: clientId,
     redirect_uri: redirectUri,
     ...props
   };
 
+  const initialState = {
+    user: null,
+    error: null,
+    isAuthenticated: false,
+    isLoading: true
+  };
+
+  const [client, setClient] = useState<Auth0Client>();
+  const [state, setState] = useState<ProviderState>(initialState);
+
   useEffect(() => {
-    initAuth0(state, options, onRedirectCallback, onError);
+    const initAuth0 = async (): Promise<void> => {
+      try {
+        // Get the client.
+        const initializedClient = await createClient(options);
+        setClient(initializedClient);
+
+        // If the user was redirect from Auth0, we need to handle the exchange or throw an error.
+        if (window.location.search.includes('state=') || (window.location.search.includes('error=')
+          || window.location.search.includes('code='))) {
+          const { appState } = await initializedClient.handleRedirectCallback();
+          redirectAfterLogin(appState, onRedirectCallback);
+        }
+
+        // Authentication success.
+        const user = await initializedClient.getUser();
+        setState({
+          ...initialState,
+          user,
+          isLoading: false,
+          isAuthenticated: !!user
+        });
+      } catch (err) {
+        setState({
+          ...initialState,
+          isLoading: false,
+          error: err
+        });
+
+        // Call a custom error handler if available.
+        if (onLoginError) {
+          onLoginError(err);
+        }
+      }
+    };
+    initAuth0();
   }, []);
 
   // These values will be available in the context.
@@ -94,10 +105,29 @@ export default function Auth0Provider({
     user: state.user,
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
-    login: (...p: any) => state.client.loginWithRedirect(...p),
-    logout: (...p: any) => state.client.logout(...p),
-    getAccessToken: (...p: any) => state.client.getTokenSilently(...p),
-    onRedirecting
+    login: (opt: LoginOptions): Promise<void> => {
+      if (!client) {
+        throw new Error('Auth0Client was not initialized');
+      }
+
+      return client.loginWithRedirect(opt);
+    },
+    logout: (opt: LogoutOptions): void => {
+      if (!client) {
+        throw new Error('Auth0Client was not initialized');
+      }
+
+      client.logout(opt);
+    },
+    getAccessToken: (opt: AccessTokenRequestOptions): Promise<any> => {
+      if (!client) {
+        throw new Error('Auth0Client was not initialized');
+      }
+
+      return client.getTokenSilently(opt);
+    },
+    onRedirecting,
+    onAccessTokenError
   };
 
   return (
