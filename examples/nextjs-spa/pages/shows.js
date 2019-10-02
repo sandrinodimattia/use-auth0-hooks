@@ -1,10 +1,7 @@
-import Link from 'next/link';
-import fetch from 'isomorphic-unfetch';
 import { Component } from 'react';
+import fetch from 'isomorphic-unfetch';
 
 import { withAccessToken, withAuth } from 'use-auth0-hooks';
-
-
 
 class TvShows extends Component {
   constructor(props) {
@@ -15,25 +12,6 @@ class TvShows extends Component {
       myShows: null,
       myShowsError: null
     };
-  }
-
-  async fetchPublicData() {
-    const { shows, showsError } = this.state;
-    if (shows || showsError) {
-      return;
-    }
-
-    const res = await fetch('http://localhost:3001/api/shows');
-    if (res.status >= 400) {
-      this.setState({
-        showsError: res.statusText || await res.json()
-      })
-    } else {
-      const { shows } = await res.json();
-      this.setState({
-        shows: shows.map(entry => entry)
-      })
-    }
   }
 
   async fetchUserData() {
@@ -49,7 +27,7 @@ class TvShows extends Component {
 
     const res = await fetch('http://localhost:3001/api/my/shows', {
       headers: {
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${accessToken.value}`
       }
     });
 
@@ -60,34 +38,44 @@ class TvShows extends Component {
     } else {
       const { shows } = await res.json();
       this.setState({
-        myShows: shows.map(entry => entry)
+        myShows: shows.map(entry => entry.show)
       })
     }
   }
-
-  /*
-
-
-    */
   
   async componentDidMount () {
-    await this.fetchPublicData();
     await this.fetchUserData();
   }
 
   async componentDidUpdate() {
-    await this.fetchPublicData();
     await this.fetchUserData();
   }
 
   render() {
-    const { state } = this;
-    const { accessToken } = this.props;
+    const { state, myShowsError } = this;
+    const { shows, showsError } = this.props;
     return (
       <div>
-        <h1>TV Shows</h1>
+        {
+          state.myShows && (
+            <div>
+              <h1>My Favourite TV Shows</h1>
+              {myShowsError && <pre>Error loading my shows: {myShowsError}</pre>}
+              <ul>
+                {state.myShows && state.myShows.map(show => (
+                  <li key={show.id}>
+                    {show.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+        
+        <h1>All TV Shows</h1>
+        {showsError && <pre>Error loading shows: {showsError}</pre>}
         <ul>
-          {state.shows && state.shows.map(show => (
+          {shows && shows.map(show => (
             <li key={show.id}>
               {show.name}
             </li>
@@ -96,6 +84,20 @@ class TvShows extends Component {
       </div>
     );
   }
+};
+
+TvShows.getInitialProps = async function() {
+  const res = await fetch('http://localhost:3001/api/shows');
+  if (res.status >= 400) {
+    return {
+      showsError: res.statusText || await res.json()
+    };
+  }
+
+  const { shows } = await res.json();
+  return {
+    shows: shows.map(entry => entry)
+  };
 };
 
 export default withAuth(
