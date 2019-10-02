@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { useAuth0, requireLogin } from 'use-auth0-hooks';
+import { withAuth, withLoginRequired } from 'use-auth0-hooks';
 
-function Profile() {
-  const { user } = useAuth0();
+function Profile({ auth }) {
+  const { user } = auth;
   return (
     <div>
       <h1>Profile</h1>
@@ -13,4 +13,6 @@ function Profile() {
   );
 }
 
-export default requireLogin(Profile);
+export default withLoginRequired(
+  withAuth(Profile)
+);

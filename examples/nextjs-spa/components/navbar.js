@@ -2,11 +2,11 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 
-import { useAuth0 } from '../dist';
+import { useAuth } from 'use-auth0-hooks';
 
 export default function NavBar() {
   const { pathname, query } = useRouter();
-  const { isAuthenticated, isLoading, login, logout } = useAuth0();
+  const { isAuthenticated, isLoading, login, logout } = useAuth();
 
   return (
     <header>
@@ -69,7 +69,7 @@ export default function NavBar() {
         li {
           margin-right: 1rem;
         }
-        li:nth-child(2) {
+        li:nth-child(3) {
           margin-right: auto;
         }
         a {

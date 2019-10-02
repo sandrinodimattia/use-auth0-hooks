@@ -20,10 +20,10 @@
     "next": "^9.0.7",
     "react": "^16.10.1",
     "react-dom": "^16.10.1",
-    "use-auth0-hooks": "^0.2.0"
+    "use-auth0-hooks": "0.4.0"
   },
   "devDependencies": {
-    "eslint": "^6.1.0",
+    "eslint": "^6.5.1",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
