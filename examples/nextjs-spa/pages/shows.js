@@ -1,7 +1,11 @@
 import { Component } from 'react';
+import getConfig from 'next/config';
 import fetch from 'isomorphic-unfetch';
 
 import { withAccessToken, withAuth } from 'use-auth0-hooks';
+
+
+const { publicRuntimeConfig } = getConfig();
 
 class TvShows extends Component {
   constructor(props) {
@@ -25,7 +29,7 @@ class TvShows extends Component {
       return;
     }
 
-    const res = await fetch('http://localhost:3001/api/my/shows', {
+    const res = await fetch(`${publicRuntimeConfig}/api/my/shows`, {
       headers: {
         'Authorization': `Bearer ${accessToken.value}`
       }
@@ -52,6 +56,7 @@ class TvShows extends Component {
   }
 
   render() {
+    const { auth } = this.props;
     const { state, myShowsError } = this;
     const { shows, showsError } = this.props;
     return (
@@ -59,7 +64,7 @@ class TvShows extends Component {
         {
           state.myShows && (
             <div>
-              <h1>My Favourite TV Shows</h1>
+              <h1>My Favourite TV Shows ({auth.user.email})</h1>
               {myShowsError && <pre>Error loading my shows: {myShowsError}</pre>}
               <ul>
                 {state.myShows && state.myShows.map(show => (
@@ -87,7 +92,7 @@ class TvShows extends Component {
 };
 
 TvShows.getInitialProps = async function() {
-  const res = await fetch('http://localhost:3001/api/shows');
+  const res = await fetch(`${publicRuntimeConfig}/api/shows`);
   if (res.status >= 400) {
     return {
       showsError: res.statusText || await res.json()
@@ -102,7 +107,7 @@ TvShows.getInitialProps = async function() {
 
 export default withAuth(
   withAccessToken(TvShows, {
-    audience: 'urn:books',
-    scope: 'read:books'
+    audience: 'https://api/tv-shows',
+    scope: 'read:shows'
   }) 
 );

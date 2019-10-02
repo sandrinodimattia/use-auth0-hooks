@@ -2,6 +2,17 @@
 
 An easy way to sign in with Auth0 in your React application (client-side) using React Hooks.
 
+Highlights:
+
+ - Support hooks and class based components
+ - Pluggable architecture where you can add your error handlers and take action when redirecting
+ - Sign in
+ - Sign out
+ - Request access tokens for your APIs, with automated handling of expired tokens.
+ - Require the user to be signed in or make it optional, depending on the page you're on.
+ - Built with TypeScript
+ - Makes use of `@auth0/auth0-spa-js` which uses the Authorization Code grant with PKCE (instead of Implicit)
+
 ## Installation
 
 Using [npm](https://npmjs.org):
@@ -82,7 +93,7 @@ export default function NavBar() {
                   </Link>
                 </li>
                 <li>
-                  <button onClick={() => logout()}>Log out</button>
+                  <button onClick={() => logout({ returnTo: 'http://localhost:3000' })}>Log out</button>
                 </li>
               </>
             ) : (
@@ -126,6 +137,119 @@ export default withLoginRequired(
 ```
 
 ## Advanced Use Cases
+
+### Calling an API
+
+You can use hooks or high order components to get an access token for your API:
+
+```js
+import { useAuth, useAccessToken } from 'use-auth0-hooks';
+
+export default function My Page() {
+  const auth = useAuth();
+  const accessToken = useAccessToken({
+    audience: 'urn:books',
+    scope: 'read:books'
+  });
+
+  if (accessToken.value) {
+    // Use accessToken.value here.
+  }
+
+
+  return (
+    ...
+  );
+}
+```
+
+Or you can also use it in class based components:
+
+```js
+import { Component } from 'react';
+import fetch from 'isomorphic-unfetch';
+
+import { withAccessToken, withAuth } from 'use-auth0-hooks';
+
+class TvShows extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      myShows: null,
+      myShowsError: null
+    };
+  }
+
+  async fetchUserData() {
+    const { myShows, myShowsError } = this.state;
+    if (myShows || myShowsError) {
+      return;
+    }
+
+    const { accessToken } = this.props;
+    if (!accessToken.value) {
+      return;
+    }
+
+    const res = await fetch('http://localhost:3001/api/my/shows', {
+      headers: {
+        'Authorization': `Bearer ${accessToken.value}`
+      }
+    });
+
+    if (res.status >= 400) {
+      this.setState({
+        myShowsError: res.statusText || await res.json()
+      })
+    } else {
+      const { shows } = await res.json();
+      this.setState({
+        myShows: shows.map(entry => entry.show)
+      })
+    }
+  }
+  
+  async componentDidMount () {
+    await this.fetchUserData();
+  }
+
+  async componentDidUpdate() {
+    await this.fetchUserData();
+  }
+
+  render() {
+    const { auth } = this.props;
+    const { state, myShowsError } = this;
+    const { shows, showsError } = this.props;
+    return (
+      <div>
+        {
+          state.myShows && (
+            <div>
+              <h1>My Favourite TV Shows ({auth.user.email})</h1>
+              {myShowsError && <pre>Error loading my shows: {myShowsError}</pre>}
+              <ul>
+                {state.myShows && state.myShows.map(show => (
+                  <li key={show.id}>
+                    {show.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+      </div>
+    );
+  }
+};
+
+export default withAuth(
+  withAccessToken(TvShows, {
+    audience: 'https://api/tv-shows',
+    scope: 'read:shows'
+  }) 
+);
+```
 
 ### Deep Links
 

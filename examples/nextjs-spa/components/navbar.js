@@ -1,11 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
+import getConfig from 'next/config';
 import { useRouter } from 'next/router'
 
 import { useAuth } from 'use-auth0-hooks';
 
 export default function NavBar() {
   const { pathname, query } = useRouter();
+  const { publicRuntimeConfig } = getConfig();
   const { isAuthenticated, isLoading, login, logout } = useAuth();
 
   return (
@@ -36,7 +38,7 @@ export default function NavBar() {
                   </Link>
                 </li>
                 <li>
-                  <button onClick={() => logout()}>Log out</button>
+                  <button onClick={() => logout({ returnTo: publicRuntimeConfig.auth0.postLogoutRedirectUri })}>Log out</button>
                 </li>
               </>
             ) : (
