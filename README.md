@@ -107,7 +107,7 @@ And finally you can create pages which require authentication:
 ```js
 import React from 'react';
 
-import { useAuth0, requireLogin } from 'use-auth0-hooks';
+import { useAuth0, WithLoginRequired } from 'use-auth0-hooks';
 
 function Profile() {
   const { user } = useAuth0();
@@ -121,7 +121,7 @@ function Profile() {
   );
 }
 
-export default requireLogin(Profile);
+export default WithLoginRequired(Profile);
 ```
 
 ## Advanced Use Cases
