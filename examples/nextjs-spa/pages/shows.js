@@ -4,9 +4,6 @@ import fetch from 'isomorphic-unfetch';
 
 import { withAccessToken, withAuth } from 'use-auth0-hooks';
 
-
-const { publicRuntimeConfig } = getConfig();
-
 class TvShows extends Component {
   constructor(props) {
     super(props);
@@ -29,7 +26,7 @@ class TvShows extends Component {
       return;
     }
 
-    const res = await fetch(`${publicRuntimeConfig}/api/my/shows`, {
+    const res = await fetch(`${process.env.API_BASE_URL}/api/my/shows`, {
       headers: {
         'Authorization': `Bearer ${accessToken.value}`
       }
@@ -65,6 +62,7 @@ class TvShows extends Component {
           state.myShows && (
             <div>
               <h1>My Favourite TV Shows ({auth.user.email})</h1>
+              <p>This is rendered on the client side.</p>
               {myShowsError && <pre>Error loading my shows: {myShowsError}</pre>}
               <ul>
                 {state.myShows && state.myShows.map(show => (
@@ -79,6 +77,7 @@ class TvShows extends Component {
         
         <h1>All TV Shows</h1>
         {showsError && <pre>Error loading shows: {showsError}</pre>}
+        <p>This is rendered on the server side.</p>
         <ul>
           {shows && shows.map(show => (
             <li key={show.id}>
@@ -92,7 +91,7 @@ class TvShows extends Component {
 };
 
 TvShows.getInitialProps = async function() {
-  const res = await fetch(`${publicRuntimeConfig}/api/shows`);
+  const res = await fetch(`${process.env.API_BASE_URL}/api/shows`);
   if (res.status >= 400) {
     return {
       showsError: res.statusText || await res.json()

@@ -1,6 +1,5 @@
 import App from 'next/app';
 import Router from 'next/router';
-import getConfig from 'next/config';
 import { Auth0Provider } from 'use-auth0-hooks';
 
 import Layout from '../components/layout';
@@ -60,13 +59,13 @@ const onRedirecting = () => {
  */
 export default class Root extends App {
   render () {
-    const { publicRuntimeConfig } = getConfig();
     const { Component, pageProps } = this.props;
+
     return (
       <Auth0Provider
-        domain={publicRuntimeConfig.auth0.domain}
-        clientId={publicRuntimeConfig.auth0.clientId}
-        redirectUri={publicRuntimeConfig.auth0.redirectUri}
+        domain={process.env.AUTH0_DOMAIN}
+        clientId={process.env.AUTH0_CLIENT_ID}
+        redirectUri={process.env.REDIRECT_URI}
         onLoginError={onLoginError}
         onAccessTokenError={onAccessTokenError}
         onRedirecting={onRedirecting}

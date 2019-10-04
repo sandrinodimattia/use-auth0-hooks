@@ -4,8 +4,8 @@ import { useAuth, useAccessToken } from 'use-auth0-hooks';
 export default function About() {
   const auth = useAuth();
   const accessToken = useAccessToken({
-    audience: 'urn:books',
-    scope: 'read:books'
+    audience: 'https://api/tv-shows',
+    scope: 'read:shows'
   });
 
   return (

@@ -7,7 +7,6 @@ import { useAuth } from 'use-auth0-hooks';
 
 export default function NavBar() {
   const { pathname, query } = useRouter();
-  const { publicRuntimeConfig } = getConfig();
   const { isAuthenticated, isLoading, login, logout } = useAuth();
 
   return (
@@ -38,7 +37,7 @@ export default function NavBar() {
                   </Link>
                 </li>
                 <li>
-                  <button onClick={() => logout({ returnTo: publicRuntimeConfig.auth0.postLogoutRedirectUri })}>Log out</button>
+                  <button onClick={() => logout({ returnTo: process.env.POST_LOGOUT_REDIRECT_URI })}>Log out</button>
                 </li>
               </>
             ) : (
