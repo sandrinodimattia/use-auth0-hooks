@@ -145,20 +145,21 @@ You can use hooks or high order components to get an access token for your API:
 ```js
 import { useAuth, useAccessToken } from 'use-auth0-hooks';
 
-export default function My Page() {
-  const auth = useAuth();
-  const accessToken = useAccessToken({
-    audience: 'urn:books',
-    scope: 'read:books'
+export function SomePage() {
+  const { accessToken } = useAuth({
+    audience: 'https://api.mycompany.com/',
+    scope: 'read:things'
   });
 
-  if (accessToken.value) {
-    // Use accessToken.value here.
+  const { response, isLoading } = callMyApi(`https://localhost/api/my/shows`, accessToken);
+  if (isLoading) {
+    return (
+      <div>Loading your subscriptions ...</div>
+    );
   }
 
-
   return (
-    ...
+    <div>API call response: {response}</div>
   );
 }
 ```
@@ -169,9 +170,9 @@ Or you can also use it in class based components:
 import { Component } from 'react';
 import fetch from 'isomorphic-unfetch';
 
-import { withAccessToken, withAuth } from 'use-auth0-hooks';
+import { withAuth } from 'use-auth0-hooks';
 
-class TvShows extends Component {
+class MyTvShows extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -186,14 +187,14 @@ class TvShows extends Component {
       return;
     }
 
-    const { accessToken } = this.props;
-    if (!accessToken.value) {
+    const { accessToken } = this.props.auth;
+    if (!accessToken) {
       return;
     }
 
-    const res = await fetch('http://localhost:3001/api/my/shows', {
+    const res = await fetch(`${process.env.API_BASE_URL}/api/my/shows`, {
       headers: {
-        'Authorization': `Bearer ${accessToken.value}`
+        'Authorization': `Bearer ${accessToken}`
       }
     });
 
@@ -219,14 +220,14 @@ class TvShows extends Component {
 
   render() {
     const { auth } = this.props;
-    const { state, myShowsError } = this;
-    const { shows, showsError } = this.props;
+    const { myShows, myShowsError } = this.state;
     return (
       <div>
         {
-          state.myShows && (
+          myShows && (
             <div>
               <h1>My Favourite TV Shows ({auth.user.email})</h1>
+              <p>This is rendered on the client side.</p>
               {myShowsError && <pre>Error loading my shows: {myShowsError}</pre>}
               <ul>
                 {state.myShows && state.myShows.map(show => (
@@ -243,12 +244,10 @@ class TvShows extends Component {
   }
 };
 
-export default withAuth(
-  withAccessToken(TvShows, {
-    audience: 'https://api/tv-shows',
-    scope: 'read:shows'
-  }) 
-);
+export default withAuth(MyTvShows, {
+  audience: 'https://api/tv-shows',
+  scope: 'read:shows'
+});
 ```
 
 ### Deep Links
