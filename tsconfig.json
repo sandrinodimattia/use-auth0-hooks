@@ -2,5 +2,9 @@
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
     "incremental": true
-  }
+  },
+  "include": [
+    "src/*",
+    "src/**/*"
+  ]
 }

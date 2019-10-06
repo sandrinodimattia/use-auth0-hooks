@@ -1,9 +1,9 @@
 import { parse } from 'query-string';
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 
 import useAuth from '../hooks/use-auth';
+import Auth0Context from '../context/auth0-context';
 import { ReturnToAppState } from '../models/return-to';
-import { InternalAuth0Context } from '../models/provider-context';
 import withWrapper, { IComponentProps } from '../utils/with-wrapper';
 
 export interface RequireLoginProps extends IComponentProps {
@@ -26,17 +26,19 @@ function getReturnTo(): ReturnToAppState {
 export default function withLoginRequired(ChildComponent: React.ComponentClass<any>): React.ReactNode {
   return withWrapper<RequireLoginProps>(ChildComponent, 'withLoginRequired', ({ path, ...rest }) => {
     const {
-      isLoading, isAuthenticated, login, onRedirecting
-    } = useAuth() as InternalAuth0Context;
+      isLoading, isAuthenticated, login
+    } = useAuth();
+    const context = useContext(Auth0Context);
 
     useEffect(() => {
-      if (isLoading || isAuthenticated) {
+      if (!context.client || isLoading || isAuthenticated) {
         return;
       }
 
       login({ appState: getReturnTo() });
-    }, [isLoading, isAuthenticated, login, path]);
+    }, [context.client, isLoading, isAuthenticated, login, path]);
 
-    return isAuthenticated === true ? (<ChildComponent {...rest} />) : ((onRedirecting && onRedirecting()) || null);
+    return isAuthenticated === true
+      ? (<ChildComponent {...rest} />) : ((context.handlers.onRedirecting && context.handlers.onRedirecting()) || null);
   });
 }
