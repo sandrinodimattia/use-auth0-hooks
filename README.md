@@ -31,6 +31,8 @@ yarn add use-auth0-hooks
 
 ### Next.js
 
+> A full example for Next.js can be found [here](examples/nextjs-spa).
+
 Wrap your application with the `Auth0Provider` (under `/pages/_app.js`):
 
 ```js

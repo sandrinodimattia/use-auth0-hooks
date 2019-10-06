@@ -13,6 +13,8 @@ First you'll need to go to the [Auth0 dashboard](https://manage.auth0.com/) and 
 - Identifier: **https://api/tv-shows**
 - Signing Algorithm: **RS256**
 
+Once the API is created make sure you also create a scope: `read:shows`
+
 Then create a `.env` file in this directory:
 
 ```
