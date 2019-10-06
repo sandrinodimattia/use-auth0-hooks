@@ -26,23 +26,28 @@ function MyShows() {
   );
 }
 
-export default function About() {
-  const auth = useAuth();
+export default function Subscription() {
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   return (
     <div>
-      <h1>About</h1>
+      <h1>TV Subscription</h1>
       <p>
-        This is the about page.
+        This page will show information about your current TV subscription.
       </p>
-      <h2>Hooks Demo</h2>
-      <p>
-        On this page we're fetching the authentication information and the access token using <strong>React Hooks</strong>.
-      </p>
-      <h3>Authentication</h3>
-      <pre>{JSON.stringify(auth, null, 2)}</pre>
-      <h3>My Shows</h3>
-      <MyShows />
+      {
+        isAuthenticated && 
+        <>
+          <h3>Total Shows for {user.email}</h3>
+          <MyShows />
+        </>
+      }
+      {
+        !isLoading && !isAuthenticated && 
+        <>
+          <p style={{color: 'red'}}>You need to be authenticated before we can show your TV subscription information.</p>
+        </>
+      }
     </div>
   );
 }

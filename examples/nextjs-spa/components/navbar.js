@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import getConfig from 'next/config';
 import { useRouter } from 'next/router'
 
 import { useAuth } from 'use-auth0-hooks';
@@ -19,8 +18,8 @@ export default function NavBar() {
             </Link>
           </li>
           <li>
-            <Link href='/about'>
-              <a>About</a>
+            <Link href='/subscription'>
+              <a>TV Subscription</a>
             </Link>
           </li>
           <li>

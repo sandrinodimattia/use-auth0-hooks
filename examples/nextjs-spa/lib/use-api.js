@@ -1,52 +1,72 @@
-import React from 'react';
-import { useAuth, useAccessToken } from 'use-auth0-hooks';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from 'use-auth0-hooks';
+
+function initialState(args) {
+  return {
+    response: null,
+    error: null,
+    isLoading: false,
+    ...args
+  };
+}
 
 export default (url, options) => {
-  const [response, setResponse] = React.useState(null);
-  const [error, setError] = React.useState(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-
-  const { isLoading: isAuthLoading, isAuthenticated  } = useAuth();
-  const accessToken = useAccessToken({
+  const { isLoading, error, accessToken, user } = useAuth({
     audience: options.audience,
     scope: options.scope
   });
 
-  React.useEffect(() => {
-    if (isAuthLoading) {
+  const [state, setState] = useState(() => initialState({
+    isLoading
+  }));
+
+
+  useEffect(() => {
+    if (error) {
+      setState({
+        error: new Error('Unable to retrieve access token')
+      });
       return;
     }
 
-    if (!isAuthenticated) {
-      setError(new Error('Not authenticated'));
+    if (!user) {
+      setState(initialState({
+        error: new Error('The user is not signed in')
+      }));
       return;
     }
 
-    if (accessToken.error) {
-      setError(new Error('Unable to retrieve access token'));
-      return;
-    }
-
-    if (!accessToken.value) {
+    if (!accessToken) {
+      setState(initialState({
+        error: new Error('The user is not signed in')
+      }));
       return;
     }
   
     const fetchData = async () => {
       try {
+        setState(initialState({
+          isLoading: true
+        }));
+
         const res = await fetch(url, {
           ...options,
           headers: {
-            'Authorization': `Bearer ${accessToken.value}`
+            'Authorization': `Bearer ${accessToken}`
           }
         });
-        const json = await res.json();
-        setResponse(json);
-        setIsLoading(false)
+
+        setState(initialState({
+          response: await res.json(),
+          isLoading: false
+        }));
       } catch (error) {
-        setError(error);
+        setState(initialState({
+          error
+        }));
       }
     };
     fetchData();
-  }, [accessToken]);
-  return { response, error, isLoading };
+  }, [user, accessToken, error, isLoading]);
+  return state;
 };

@@ -1,8 +1,7 @@
 import { Component } from 'react';
-import getConfig from 'next/config';
 import fetch from 'isomorphic-unfetch';
 
-import { withAccessToken, withAuth } from 'use-auth0-hooks';
+import { withAuth } from 'use-auth0-hooks';
 
 class TvShows extends Component {
   constructor(props) {
@@ -21,14 +20,14 @@ class TvShows extends Component {
       return;
     }
 
-    const { accessToken } = this.props;
-    if (!accessToken.value) {
+    const { accessToken } = this.props.auth;
+    if (!accessToken) {
       return;
     }
 
     const res = await fetch(`${process.env.API_BASE_URL}/api/my/shows`, {
       headers: {
-        'Authorization': `Bearer ${accessToken.value}`
+        'Authorization': `Bearer ${accessToken}`
       }
     });
 
@@ -54,18 +53,18 @@ class TvShows extends Component {
 
   render() {
     const { auth } = this.props;
-    const { state, myShowsError } = this;
     const { shows, showsError } = this.props;
+    const { myShows, myShowsError } = this.state;
+
     return (
       <div>
         {
-          state.myShows && (
+          myShows && (
             <div>
               <h1>My Favourite TV Shows ({auth.user.email})</h1>
-              <p>This is rendered on the client side.</p>
               {myShowsError && <pre>Error loading my shows: {myShowsError}</pre>}
               <ul>
-                {state.myShows && state.myShows.map(show => (
+                {myShows && myShows.map(show => (
                   <li key={show.id}>
                     {show.name}
                   </li>
@@ -104,9 +103,7 @@ TvShows.getInitialProps = async function() {
   };
 };
 
-export default withAuth(
-  withAccessToken(TvShows, {
-    audience: 'https://api/tv-shows',
-    scope: 'read:shows'
-  }) 
-);
+export default withAuth(TvShows, {
+  audience: 'https://api/tv-shows',
+  scope: 'read:shows'
+});
