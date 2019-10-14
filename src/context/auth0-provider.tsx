@@ -63,7 +63,7 @@ export default function Auth0Provider({
   onLoginError,
   onAccessTokenError,
   ...props
-}: Auth0ProviderOptions): React.ReactNode {
+}: Auth0ProviderOptions): JSX.Element {
   const [client, setClient] = useState<Auth0Client>();
   useEffect(() => {
     const initAuth0 = async (): Promise<void> => {
