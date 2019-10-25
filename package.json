@@ -1,6 +1,6 @@
 {
   "name": "use-auth0-hooks",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "An easy way to sign in with Auth0 in your React SPA",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
