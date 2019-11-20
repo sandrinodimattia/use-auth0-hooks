@@ -66,11 +66,11 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 
-import { useAuth0 } from 'use-auth0-hooks';
+import { useAuth } from 'use-auth0-hooks';
 
 export default function NavBar() {
   const { pathname, query } = useRouter();
-  const { isAuthenticated, isLoading, login, logout } = useAuth0();
+  const { isAuthenticated, isLoading, login, logout } = useAuth();
 
   return (
     <header>
@@ -258,7 +258,7 @@ When a user clicks the login button on a specific page you'll probably want to s
 
 ```js
 const { pathname, query } = useRouter();
-const { login } = useAuth0();
+const { login } = useAuth();
 
 return (    
   <button onClick={() => login({ appState: { returnTo: { pathname, query } } })}>
