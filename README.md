@@ -66,11 +66,11 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 
-import { useAuth0 } from 'use-auth0-hooks';
+import { useAuth } from 'use-auth0-hooks';
 
 export default function NavBar() {
   const { pathname, query } = useRouter();
-  const { isAuthenticated, isLoading, login, logout } = useAuth0();
+  const { isAuthenticated, isLoading, login, logout } = useAuth();
 
   return (
     <header>
@@ -211,7 +211,7 @@ class MyTvShows extends Component {
       })
     }
   }
-  
+
   async componentDidMount () {
     await this.fetchUserData();
   }
@@ -258,9 +258,9 @@ When a user clicks the login button on a specific page you'll probably want to s
 
 ```js
 const { pathname, query } = useRouter();
-const { login } = useAuth0();
+const { login } = useAuth();
 
-return (    
+return (
   <button onClick={() => login({ appState: { returnTo: { pathname, query } } })}>
     Log in
   </button>
@@ -354,7 +354,7 @@ If for some reason the login fails (eg: an Auth0 Rule returns an error), you'll 
 ```js
 /**
  * When signing in fails for some reason, we want to show it here.
- * @param {Error} err 
+ * @param {Error} err
  */
 const onLoginError = (err) => {
   Router.push({
