@@ -11,7 +11,7 @@ This example shows how to use this library with Next.js with a variety of things
 
 ## Getting Started
 
-Before you can get started with this example you'll need to configure and run an instance of the [TV Shows API](../tv-shows-ap);
+Before you can get started with this example you'll need to configure and run an instance of the [TV Shows API](../tv-shows-api)
 
 ### Creating an application
 
