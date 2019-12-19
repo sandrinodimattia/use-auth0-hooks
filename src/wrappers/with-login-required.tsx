@@ -1,13 +1,13 @@
 import { parse } from 'query-string';
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, ReactElement } from 'react';
 
 import useAuth from '../hooks/use-auth';
 import Auth0Context from '../context/auth0-context';
 import { ReturnToAppState } from '../models/return-to';
-import withWrapper, { IComponentProps } from '../utils/with-wrapper';
+import withWrapper from '../utils/with-wrapper';
 
-export interface RequireLoginProps extends IComponentProps {
-  path: string;
+export interface RequireLoginProps {
+  path?: string;
 }
 
 function getReturnTo(): ReturnToAppState {
@@ -20,25 +20,36 @@ function getReturnTo(): ReturnToAppState {
     };
   }
 
-  return { };
+  return {};
 }
 
-export default function withLoginRequired(ChildComponent: React.ComponentClass<any>): React.ReactNode {
-  return withWrapper<RequireLoginProps>(ChildComponent, 'withLoginRequired', ({ path, ...rest }) => {
-    const {
-      isLoading, isAuthenticated, login
-    } = useAuth();
-    const context = useContext(Auth0Context);
+export default function withLoginRequired<T extends {}>(
+  ChildComponent: React.ComponentType<T>
+): React.ComponentType<RequireLoginProps & T> {
+  return withWrapper<RequireLoginProps, T>(
+    ChildComponent,
+    'withLoginRequired',
+    ({ path, ...rest }): ReactElement<any> | null => {
+      const { isLoading, isAuthenticated, login } = useAuth();
+      const context = useContext(Auth0Context);
 
-    useEffect(() => {
-      if (!context.client || isLoading || isAuthenticated) {
-        return;
+      useEffect(() => {
+        if (!context.client || isLoading || isAuthenticated) {
+          return;
+        }
+
+        login({ appState: getReturnTo() });
+      }, [context.client, isLoading, isAuthenticated, login, path]);
+
+      if (isAuthenticated) {
+        // cast to T needed https://github.com/Microsoft/TypeScript/issues/28938
+        return <ChildComponent {...(rest as T)} />;
       }
 
-      login({ appState: getReturnTo() });
-    }, [context.client, isLoading, isAuthenticated, login, path]);
-
-    return isAuthenticated === true
-      ? (<ChildComponent {...rest} />) : ((context.handlers.onRedirecting && context.handlers.onRedirecting()) || null);
-  });
+      return (
+        (context.handlers.onRedirecting && context.handlers.onRedirecting())
+        || null
+      );
+    }
+  );
 }

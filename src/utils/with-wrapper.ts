@@ -1,46 +1,44 @@
 import {
-  ReactNode,
-  ReactChildren,
   FunctionComponent,
-  ComponentClass
+  ComponentType,
+  ReactElement
 } from 'react';
 
 interface INextPage {
   getInitialProps?(ctx: any): Promise<any>;
 }
 
-export interface IComponentProps {
-  [key: string]: any;
-  children: ReactChildren;
-}
-
-interface RenderWrapper<TProps extends IComponentProps> {
-  (props: TProps): ReactNode;
-}
-
-function getComponentName(ChildComponent: ComponentClass<any>): string {
+function getComponentName<TProps extends {}>(
+  ChildComponent: ComponentType<TProps>
+): string {
   return ChildComponent.displayName || ChildComponent.name || 'Component';
 }
 
-function tryGetInitialPropsMethod(
-  child: ComponentClass<any>
+function tryGetInitialPropsMethod<TProps extends {}>(
+  child: ComponentType<TProps>
 ): ((ctx: any) => Promise<any>) | undefined {
   const nextPage = child as INextPage;
   return nextPage && nextPage.getInitialProps;
 }
 
-export default function withWrapper<TPropsType extends IComponentProps>(
-  ChildComponent: ComponentClass<any>,
+export default function withWrapper<
+  TPropsType extends {},
+  TChildProps extends {}
+>(
+  ChildComponent: ComponentType<TChildProps>,
   name: string,
-  render: RenderWrapper<TPropsType>
-): ReactNode {
-  const WrappedComponent = (props: TPropsType): ReactNode => render(props);
-  (WrappedComponent as FunctionComponent).displayName = `${name}(${getComponentName(
-    ChildComponent
-  )})`;
+  render: (
+    props: TPropsType
+  ) => ReactElement<TChildProps> | null
+): ComponentType<TChildProps & TPropsType> {
+  const WrappedComponent: FunctionComponent<TChildProps & TPropsType> = (props) => render(props);
+
+  // eslint-disable-next-line no-param-reassign
+  WrappedComponent.displayName = `${name}(${getComponentName(ChildComponent)})`;
 
   // Helper for Next.js support (getInitialProps)
   const getInitialProps = tryGetInitialPropsMethod(ChildComponent);
+
   if (getInitialProps) {
     const WrappedComponentNext = WrappedComponent as INextPage;
     WrappedComponentNext.getInitialProps = async (args: any): Promise<any> => getInitialProps(args);

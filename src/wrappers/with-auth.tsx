@@ -1,18 +1,17 @@
 import React from 'react';
-
 import useAuth from '../hooks/use-auth';
 import { AccessTokenRequestOptions } from '../context/auth0-context';
-import withWrapper, { IComponentProps } from '../utils/with-wrapper';
+import withWrapper from '../utils/with-wrapper';
 
-export default function withAuth(
-  ChildComponent: React.ComponentClass<any>,
+export default function withAuth<TChildProps>(
+  ChildComponent: React.ComponentType<TChildProps>,
   options?: AccessTokenRequestOptions
-): React.ReactNode {
-  return withWrapper<IComponentProps>(ChildComponent, 'withAuth', ({ ...props }) => {
+): React.ComponentType<TChildProps> {
+  return withWrapper(ChildComponent, 'withAuth', ({ ...props }) => {
     const auth = useAuth(options);
 
     return (
-      <ChildComponent {...props} auth={auth} />
+      <ChildComponent {...props as TChildProps} auth={auth} />
     );
   });
 }
