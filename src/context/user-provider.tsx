@@ -16,16 +16,15 @@ function redirectAfterLogin(appState: any, onRedirectCallback?: (appState: any) 
     return;
   }
 
-  // We want to remove the state and the code from the querystring.
-  window.history.replaceState(
-    {},
-    document && document.title,
-    window && window.location.pathname
-  );
-
-  // Allow the implementation of custom redirect logic.
   if (onRedirectCallback) {
-    onRedirectCallback(appState);
+    onRedirectCallback(appState); 
+  } else {
+      // We want to remove the state and the code from the querystring.
+    window.history.replaceState(
+      {},
+      document && document.title,
+      window && window.location.pathname
+    );
   }
 }
 
