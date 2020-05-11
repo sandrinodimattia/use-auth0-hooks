@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 
 import UserContext from '../context/user-context';
-import { IAccessTokenContext } from '../context/access-token-context';
-import { getAccessTokenFromCache, ensureClient } from '../utils/auth0';
+import { ITokenContext, ITokenResponse } from '../context/access-token-context';
+import { getTokenFromCache, ensureClient } from '../utils/auth0';
 import Auth0Context, { LoginOptions, AccessTokenRequestOptions } from '../context/auth0-context';
 
 export interface UseAuthResult {
@@ -15,6 +15,11 @@ export interface UseAuthResult {
    * The access token.
    */
   accessToken?: string | null;
+
+  /**
+   * The token.
+   */
+  token?: ITokenResponse | null;
 
   /**
    * If the transaction failed, this will contain the error.
@@ -42,15 +47,15 @@ export interface UseAuthResult {
   logout: (options: LogoutOptions) => void;
 }
 
-function initialState(): IAccessTokenContext {
+function initialState(): ITokenContext {
   return {
-    accessToken: null,
+    token: null,
     error: null,
     isLoading: false
   };
 }
 
-export default function useAuth(accessTokenRequest?: AccessTokenRequestOptions): UseAuthResult {
+export default function useAuth(tokenRequest?: AccessTokenRequestOptions): UseAuthResult {
   const {
     isAuthenticated,
     isLoading,
@@ -64,8 +69,8 @@ export default function useAuth(accessTokenRequest?: AccessTokenRequestOptions):
     handlers
   } = useContext(Auth0Context);
 
-  // If no access token is needed we can just stop here.
-  if (!accessTokenRequest) {
+  // If no token is needed we can just stop here.
+  if (!tokenRequest) {
     return {
       user,
       error,
@@ -77,35 +82,36 @@ export default function useAuth(accessTokenRequest?: AccessTokenRequestOptions):
   }
 
   // The following will holde the additional state for this hook.
-  // We'll try to fetch the access token from the cache first if available.
-  const [state, setState] = useState<IAccessTokenContext>((): IAccessTokenContext => ({
-    ...initialState(),
-    accessToken: client && getAccessTokenFromCache(client, accessTokenRequest.audience, accessTokenRequest.scope),
-    isLoading: !!accessTokenRequest
-  }));
+  // We'll try to fetch the token from the cache first if available.
+  const [state, setState] = useState<ITokenContext>((): ITokenContext => ({
+      ...initialState(),
+      token: client && getTokenFromCache(client, tokenRequest.audience, tokenRequest.scope),
+      isLoading: !!tokenRequest
+    })
+  );
 
   useEffect(() => {
-    // We are not ready to fetch an access_token yet.
+    // We are not ready to fetch a token yet.
     if (!client || isLoading || !isAuthenticated) {
       return;
     }
 
-    // Access token is already available in this instance, no need to re-fetch it.
-    if (state.accessToken) {
+    // Token is already available in this instance, no need to re-fetch it.
+    if (state.token) {
       return;
     }
 
-    // Try to fetch the access token from the cache in a synchronous way.
-    const cachedAccessToken = getAccessTokenFromCache(client, accessTokenRequest.audience, accessTokenRequest.scope);
-    if (cachedAccessToken) {
+    // Try to fetch the token from the cache in a synchronous way.
+    const cachedToken = getTokenFromCache(client, tokenRequest.audience, tokenRequest.scope);
+    if (cachedToken) {
       setState({
         ...initialState(),
-        accessToken: cachedAccessToken
+        token: cachedToken
       });
       return;
     }
 
-    // We were not able to get the access token from cache, so now we'll just start a transaction
+    // We were not able to get the token from cache, so now we'll just start a transaction
     const getToken = async (): Promise<void> => {
       try {
         setState({
@@ -116,15 +122,15 @@ export default function useAuth(accessTokenRequest?: AccessTokenRequestOptions):
         // We will fetch the token in a silent way.
         setState({
           ...initialState(),
-          accessToken: await ensureClient(client).getTokenSilently({
-            audience: accessTokenRequest.audience,
-            scope: accessTokenRequest.scope
+          token: await ensureClient(client).getTokenSilently({
+            audience: tokenRequest.audience,
+            scope: tokenRequest.scope
           })
         });
       } catch (e) {
         // An error occured.
         if (handlers.onAccessTokenError) {
-          handlers.onAccessTokenError(e, accessTokenRequest);
+          handlers.onAccessTokenError(e, tokenRequest);
         }
 
         setState({
@@ -141,7 +147,8 @@ export default function useAuth(accessTokenRequest?: AccessTokenRequestOptions):
     error: error || state.error,
     isAuthenticated,
     isLoading: isLoading || state.isLoading,
-    accessToken: state.accessToken,
+    token: state.token,
+    accessToken: state.token && state.token.accessToken,
     login,
     logout
   };
