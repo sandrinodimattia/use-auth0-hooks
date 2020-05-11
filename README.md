@@ -36,27 +36,20 @@ yarn add use-auth0-hooks
 Wrap your application with the `Auth0Provider` (under `/pages/_app.js`):
 
 ```js
-import App from 'next/app';
-import Router from 'next/router';
+// Create a page which wraps the Auth0 provider.
 
 import { Auth0Provider } from 'use-auth0-hooks';
 
-/**
- * Create a page which wraps the Auth0 provider.
- */
-export default class Root extends App {
-  render () {
-    const { Component, pageProps } = this.props;
-    return (
-      <Auth0Provider
-        domain={'sandrino-dev.auth0.com'}
-        clientId={'9f6ClmBt37ZGCXNqToPbefKmzVBSOLa2'}
-        redirectUri={'http://localhost:3000/'}>
-          <Component {...pageProps} />
-      </Auth0Provider>
-    );
-  }
-}
+export default ({ Component, pageProps }) => (
+ <Auth0Provider
+  domain="sandrino-dev.auth0.com"
+  clientId="9f6ClmBt37ZGCXNqToPbefKmzVBSOLa2"
+  redirectUri="http://localhost:3000"
+ >
+  <Component {...pageProps} />
+ </Auth0Provider>
+)
+
 ```
 
 You can then create a `NavBar` component with the necessary buttons:
