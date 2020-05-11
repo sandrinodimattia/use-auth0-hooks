@@ -1,11 +1,11 @@
-export interface ITokenContext {
+export interface IAccessTokenContext {
   /**
-   * The current token.
+   * The current access token.
    */
-  token?: ITokenResponse | null;
+  accessToken?: string | null;
 
   /**
-   * If retrieving an token failed, this will contain the error.
+   * If retrieving an access token failed, this will contain the error.
    */
   error: Error | null;
 
@@ -13,21 +13,4 @@ export interface ITokenContext {
    * Is the transaction still ongoing.
    */
   isLoading: boolean;
-}
-
-export interface ITokenResponse {
-  /**
-   * The current access token.
-   */
-  accessToken?: string | null;
-
-  /**
-   * The current id token.
-   */
-  idToken?: string | null;
-
-  /**
-   * The current expires in.
-   */
-  expiresIn?: string | null;
 }

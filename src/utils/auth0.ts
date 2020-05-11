@@ -1,5 +1,4 @@
 import { Auth0Client } from 'context/auth0-context';
-import { ITokenResponse } from 'context/access-token-context';
 
 export function ensureClient(client: Auth0Client | null | undefined): Auth0Client {
   if (!client) {
@@ -19,16 +18,13 @@ export function getUniqueScopes(...scopes: string[]): string {
     .trim();
 }
 
-export function getTokenFromCache(client: Auth0Client, audience: string, scope: string): ITokenResponse | undefined {
+export function getAccessTokenFromCache(client: Auth0Client, audience: string, scope: string): string | undefined {
   const cacheContainer: any = ensureClient(client);
   const { cache } = cacheContainer;
   const token = cache.get({
     scope: getUniqueScopes(DEFAULT_SCOPE, scope),
     audience: audience || 'default'
   });
-  return {
-    accessToken: token.access_token,
-    idToken: token.id_token,
-    expiresIn: token.expires_in
-  };
+
+  return token && token.access_token;
 }
