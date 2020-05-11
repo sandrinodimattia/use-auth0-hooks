@@ -73,6 +73,8 @@ export default function UserProvider({ children }: UserProviderOptions): JSX.Ele
           // Call a custom error handler if available.
           if (handlers.onLoginError) {
             handlers.onLoginError(err);
+          } else {
+            console.error(err);
           }
         }
       }
