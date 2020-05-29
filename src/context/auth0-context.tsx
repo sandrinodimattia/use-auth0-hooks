@@ -135,7 +135,7 @@ export interface IAuth0Context {
     /**
      * This method allows you to render a component while the user is  being redirected to Auth0.
      */
-    onRedirecting?: () => React.Component;
+    onRedirecting?: () => JSX.Element;
 
     /**
      * This method will be called after the user has been signed in, allowing you to redirect them to some page.
