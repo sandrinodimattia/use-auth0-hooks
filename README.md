@@ -1,3 +1,5 @@
+> This repository has been archived! Auth0's official React SDK is now available here: https://github.com/auth0/auth0-react
+
 # use-auth0-hooks
 
 An easy way to sign in with Auth0 in your React application (client-side) using React Hooks.
